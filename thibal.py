@@ -4,6 +4,7 @@ from datetime import datetime
 from pytz import timezone
 import calendar
 import numpy as np
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 d, h = 7, 24
 week_data = [[0 for x in range(h)] for y in range(d)]
@@ -43,6 +44,8 @@ async def on_message(message):
 		thibal_week = np.array(week_data)
 		fig, ax = plt.subplots()
 		im = ax.imshow(thibal_week)
+		divider = make_axes_locatable(ax)
+		cax = divider.append_axes('right', size='5%', pad=0.1)
 
 		ax.set_xticks(np.arange(h))
 		ax.set_yticks(np.arange(d))
@@ -52,7 +55,8 @@ async def on_message(message):
 		ax.set_title("Les pauses de Thibal")
 		fig.tight_layout()
 		fig_name = "Thibal_week_" + utc_to_local(datetime.now()).strftime("%d_%m_%Y__%H:%M:%S") + ".png"
-		plt.savefig(fig_name, transparent=True, bbox_inches = 'tight', pad_inches = 0)
+		fig.colorbar(im, cax=cax, orientation='vertical')
+		plt.savefig(fig_name, bbox_inches = 'tight', pad_inches = 0)
 
 		#reset data
 		for x in range(h):
