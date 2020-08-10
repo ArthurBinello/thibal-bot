@@ -8,7 +8,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 d, h = 7, 24
 week_data = [[0 for x in range(h)] for y in range(d)]
-hours = [x for x in range(h)]
+hours = [str(x)+'h' for x in range(h)]
 
 def utc_to_local(time):
 	utc_tz = timezone('Etc/UTC')
@@ -26,8 +26,8 @@ async def on_message(message):
 	if message.author == bot.user:
 		return
 
-	#collect data from discord
 	if message.content.startswith('C\'est l\'heure de la pause!'):
+		#collect data from discord
 		await message.channel.trigger_typing()
 		guild = message.channel.guild
 		bot_member = guild.get_member(bot.user.id)
@@ -43,19 +43,24 @@ async def on_message(message):
 		#create plot
 		thibal_week = np.array(week_data)
 		fig, ax = plt.subplots()
-		im = ax.imshow(thibal_week)
+		im = ax.imshow(thibal_week, interpolation='nearest')
 		divider = make_axes_locatable(ax)
 		cax = divider.append_axes('right', size='5%', pad=0.1)
 
 		ax.set_xticks(np.arange(h))
 		ax.set_yticks(np.arange(d))
 		ax.set_yticklabels(calendar.day_name)
-		ax.set_xticklabels(hours)
+		ax.set_xticklabels(hours, fontsize = 6)
 
 		ax.set_title("Les pauses de Thibal")
 		fig.tight_layout()
 		fig_name = "Thibal_week_" + utc_to_local(datetime.now()).strftime("%d_%m_%Y__%H:%M:%S") + ".png"
-		fig.colorbar(im, cax=cax, orientation='vertical')
+
+		mn=int(np.floor(thibal_week.min()))
+		mx=int(np.ceil(thibal_week.max()))
+		cbar = fig.colorbar(im, ticks=[mn, mx], cax=cax, orientation='vertical')
+		cbar.ax.set_yticklabels(['Min', 'Max'])
+
 		plt.savefig(fig_name, bbox_inches = 'tight', pad_inches = 0)
 
 		#reset data
