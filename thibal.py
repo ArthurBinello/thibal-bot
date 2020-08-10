@@ -32,10 +32,10 @@ async def on_message(message):
 		bot_member = guild.get_member(bot.user.id)
 		for channel in guild.text_channels:
 			if bot_member.permissions_in(channel).read_messages:
-				async for message in channel.history():
+				async for msg in channel.history():
 					#Caengal
-					if "twitter.com" in message.content and message.author.name == "Drahigan":
-						msg_time = utc_to_local(message.created_at)
+					if "twitter.com" in msg.content and msg.author.name == "Drahigan":
+						msg_time = utc_to_local(msg.created_at)
 						print(calendar.day_name[msg_time.weekday()], "à", msg_time.hour, "h")
 						week_data[msg_time.weekday()][msg_time.hour] = week_data[msg_time.weekday()][msg_time.hour] + 1
 
@@ -62,4 +62,6 @@ async def on_message(message):
 		#send image
 		await message.channel.send(file=discord.File(fig_name))
 
-bot.run('KEY_NAME')
+		print("Done!")
+
+bot.run('SECRET_KEY')
